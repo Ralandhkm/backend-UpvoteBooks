@@ -6,9 +6,9 @@ export const getUser = async(req, res) => {
     try {
         const users = await Users.findAll({
             where:{
-                email: req.body.email
+                email: req.params.email
             }
-        });
+        })
         res.json(users);
     } catch (error) {
         console.log(error);
@@ -41,15 +41,20 @@ export const Login = async(req, res) => {
                 email: req.body.email
             }
         });
+        if(!user[0].is_active){
+            return res.status(301).json({msg: "Akun tidak aktif"})
+        }
         const match = await bcrypt.compare(req.body.password, user[0].password);
         if(!match) return res.status(400).json({msg:"Password salah"});
         const userId = user[0].id;
         const npm_nis = user[0].npm_nis;
-        const nama = user[0].nama;
+        const nama = user[0].nama; 
         const email = user[0].email;
-        const accessToken = jwt.sign({userId, npm_nis, nama, email}, process.env.ACCESS_TOKEN_SECRET, {
-            expiresIn: '1d'});
-        const refreshToken = jwt.sign({userId, npm_nis, nama, email}, process.env.REFRESH_TOKEN_SECRET, {
+        const is_super_user = user[0].is_super_user
+        const is_admin = user[0].is_admin
+        const accessToken = jwt.sign({userId, npm_nis, nama, email, is_super_user, is_admin}, process.env.ACCESS_TOKEN_SECRET, {
+            expiresIn: '30s'});
+        const refreshToken = jwt.sign({userId, npm_nis, nama, email, is_super_user, is_admin}, process.env.REFRESH_TOKEN_SECRET, {
             expiresIn: '1d'});
         await Users.update({refresh_token: refreshToken}, {
             where: {

@@ -15,6 +15,18 @@ const Users = db.define('users', {
     },
     password:{
         type: DataTypes.STRING
+    }, 
+    is_super_user:{
+        type:DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    is_admin: {
+        type:DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    is_active: {
+        type:DataTypes.BOOLEAN,
+        defaultValue: false
     },
     universitas:{
         type: DataTypes.STRING
